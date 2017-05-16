@@ -1,0 +1,24 @@
+{
+  "name": "reduced-dnf",
+  "version": "1.0.1",
+  "description": "Finding a reduced disjunctive normal form",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thgleb/reduced-dnf.git"
+  },
+  "keywords": [
+    "dnf",
+    "reduced",
+    "math"
+  ],
+  "author": "Gleb Tsyrulnikov <glebserferus@gmail.com> (https://thgleb.github.io/)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/thgleb/reduced-dnf/issues"
+  },
+  "homepage": "https://github.com/thgleb/reduced-dnf#readme"
+}
