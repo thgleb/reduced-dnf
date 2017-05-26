@@ -1,6 +1,6 @@
 {
   "name": "reduced-dnf",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Finding a reduced disjunctive normal form",
   "main": "index.js",
   "scripts": {
