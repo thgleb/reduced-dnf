@@ -48,43 +48,23 @@ function diff(a, b) {
 }
 
 /**
- * It compares two objects.
+ * It checks for equality of two maps
  *
- * @param int x
- * @param int y
+ * @param Map map1
+ * @param Map map2
  *
  * @return bool
  */
-Object.equals = function(x, y) {
-  if (x === y)
-    return true;
-
-  if (!(x instanceof Object) || ! (y instanceof Object))
+Map.equals = function(map1, map2) {
+  if (map1.size !== map2.size)
     return false;
 
-  if (x.constructor !== y.constructor)
-    return false;
+  for (let [key, val] of map1) {
+    let testVal = map2.get(key);
 
-  for (let p in x) {
-    if (!x.hasOwnProperty(p))
-      continue;
-
-    if (!y.hasOwnProperty(p))
-      return false;
-
-    if (x[p] === y[p])
-      continue;
-
-    if (typeof(x[p]) !== "object")
-      return false;
-
-    if (!Object.equals(x[p], y[p]))
+    if (testVal !== val || (testVal === undefined && !map2.has(key)))
       return false;
   }
-
-  for (p in y)
-    if (y.hasOwnProperty(p) && !x.hasOwnProperty(p))
-      return false;
 
   return true;
 }
@@ -103,41 +83,41 @@ function reducedDNF(args, points) {
   let columns = [];
 
   // Creating a first column
-  columns.push({});
+  columns.push(new Map());
 
   for (let i = 0; i < points.length; i++)
-    columns[0][dec2bin(points[i], args.length)] = false;
+    columns[0].set(dec2bin(points[i], args.length), false);
 
   // Algorithm
   let columnIndex = 0;
 
   while (1) {
-    let column = Object.keys(columns[columnIndex]);
+    let column = columns[columnIndex];
 
     // Create next column
-    columns.push({});
+    columns.push(new Map());
 
-    // Compare each element with each within one column 
-    for (let i = 0; i < column.length; i++) {
-      for (let j = 0; j < column.length; j++) {
-        let d = diff(column[i], column[j]);
+    // Compare each element with each within one column
+    for (let [key1, value1] of column) {
+      for (let [key2, value2] of column) {
+        let d = diff(key1, key2);
 
         if (d.cnt !== 1)
           continue;
 
-        columns[columnIndex][column[i]] = true;
-        columns[columnIndex + 1][d.tpl] = false;
+        columns[columnIndex].set(key1, true);
+        columns[columnIndex + 1].set(d.tpl, false);
       }
     }
 
     // If some elements weren't combined together,
     // move 'em to the next column
-    for (let i = 0; i < column.length; i++)
-      if (columns[columnIndex][column[i]] === false)
-        columns[columnIndex + 1][column[i]] = false;
+    for (let [key, value] of columns[columnIndex])
+      if (value === false)
+        columns[columnIndex + 1].set(key, false);
 
     // Check if the algorithm finished
-    if (Object.equals(columns[columnIndex], columns[columnIndex + 1])) {
+    if (Map.equals(columns[columnIndex], columns[columnIndex + 1])) {
       columns.pop();
       break;
     }
@@ -149,29 +129,27 @@ function reducedDNF(args, points) {
   let F = [],
     L = 0;
 
-  Object
-    .keys(columns[columns.length - 1])
-    .forEach(tpl => {
-      let f = "";
+  for (let tpl of columns[columns.length - 1].keys()) {
+    let f = "";
 
-      tpl.split("").forEach((d, i) => {
-        d = parseInt(d);
+    tpl.split("").forEach((d, i) => {
+      d = parseInt(d);
 
-        if (isNaN(d))
-          return;
+      if (isNaN(d))
+        return;
 
-        f += (d === 1 ? "" : "¬") + args[i];
+      f += (d === 1 ? "" : "¬") + args[i];
         L++;
-      });
-
-      F.push(f);
     });
+
+    F.push(f);
+  }
 
   F = F.join(" + ");
 
   // Form better columns for output
   let c = [];
-  columns.forEach(column => c.push(Object.keys(column)));
+  columns.forEach(column => c.push(Array.from(column.keys())));
 
   return { columns: c, F, L };
 }
